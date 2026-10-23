@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador de Promociones</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #resultado {
+            margin-top: 20px;
+            text-align: left;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+        }
+        .error {
+            color: #d9534f;
+            font-weight: bold;
+        }
+        .success {
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Buscador por DNI</h2>
+        <div class="input-group">
+            <label for="dni">Ingrese su DNI:</label>
+            <input type="text" id="dni" placeholder="Ej: 12345678">
+        </div>
+        <button onclick="buscarDni()">Buscar</button>
+
+        <div id="resultado"></div>
+    </div>
+
+    <script>
+        // URL de tu Google Apps Script actualizada (Versión 6)
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzAJlxJot-6OfZrN8V1oQRZ8ung85V0r_IbosR0VCwne5tbz5qMk5U4t1TD9Fj_6x8E/exec";
+
+        function buscarDni() {
+            const dni = document.getElementById('dni').value.trim();
+            const resultadoDiv = document.getElementById('resultado');
+
+            if (!dni) {
+                resultadoDiv.style.display = 'block';
+                resultadoDiv.innerHTML = '<p class="error">Por favor, ingrese un DNI.</p>';
+                return;
+            }
+
+            resultadoDiv.style.display = 'block';
+            resultadoDiv.innerHTML = '<p>Buscando...</p>';
+
+            fetch(${APPS_SCRIPT_URL}?dni=${dni})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        resultadoDiv.innerHTML = `
+                            <p class="success"><strong>¡Encontrado!</strong></p>
+                            <p><strong>Nombre:</strong> ${data.nombre}</p>
+                            <p><strong>Códigos:</strong> ${data.codigos}</p>
+                        `;
+                    } else {
+                        resultadoDiv.innerHTML = <p class="error">${data.message || 'No se encontró el DNI.'}</p>;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    resultadoDiv.innerHTML = '<p class="error">Ocurrió un error al conectar con el servidor.</p>';
+                });
+        }
+    </script>
+
+</body>
+</html>
